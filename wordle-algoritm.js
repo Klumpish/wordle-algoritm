@@ -11,24 +11,38 @@
 
 */
 
-function wordleGuess(guessWord, correctWord) {
+export default function wordleGuess(guessWord, correctWord) {
 	// start by making them the same uppercase
 	const guess = guessWord.toUpperCase()
 	const correct = correctWord.toUpperCase()
+	if (guess.length != correct.length)
+		return console.log(
+			`The guessed word is not the same length as the correct word. guess a word that is ${correct.length} words long`
+		)
+	// en array som håller våra objekt för varje bokstav
+	let result = []
 
-	// win condition 1
-	if (guess === correct) return console.log(`You win! the word was ${guess}`)
+	let correctArr = correct.split("")
 
+	// första passet: kollar efter exakta träffar ("Correct")
 	for (let i = 0; i < guess.length; i++) {
-		for (let j = 0; j < correct.length; j++) {
-			if (guess[i] === correct[j]) {
-				console.log(
-					`bokstaven "${guess[i]}" finns i både guess och correct på pos ${i} i guess och ${j} i correct.`
-				)
-			}
+		if (guess[i] === correct[i]) {
+			result.push({ letter: guess[i], status: "correct" })
+			correctArr[i] = null //
+		} else {
+			result.push({ letter: guess[i], status: "incorrect" })
 		}
 	}
-	// kolla vilka bokstäver som förekommer i det andra ordet och vart
+
+	// andra passet: kollar efter felplacerade bokstäver ("misplaced")
+	for (let i = 0; i < result.length; i++) {
+		if (result[i].status === "incorrect" && correctArr.includes(guess[i])) {
+			result[i].status = "misplaced" //om bokstaven finns i correct men inte på samma plats som i guess
+			correctArr[correctArr.indexOf(guess[i])] = null // ta bort bokstaven från correctArr så den inte matchas igen
+		}
+	}
+
+	return result
 }
 
-console.log(wordleGuess("Hej", "hej"))
+console.log(wordleGuess("halflå", "cykla"))
